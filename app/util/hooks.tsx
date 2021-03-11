@@ -211,30 +211,46 @@ export function useContextSelector<T, U>(
     ),
   );
 
-  const [selectedValue, setSelectedValue] = useState(() => {
-    const value = selector(handle.currentValue());
-    if (value === BAILOUT) {
-      throw new Error("Initial selector call must not return BAILOUT");
-    }
-    return value;
-  });
+  const [, forceUpdate] = useState(0);
 
-  const latestSelectedValue = useRef<symbol | U>();
-  useLayoutEffect(() => {
-    latestSelectedValue.current = selectedValue;
-  });
+  const state = useRef<{ contextValue: T; selectedValue: U } | undefined>();
+  const contextValue = handle.currentValue();
+  if (state.current === undefined || contextValue !== state.current?.contextValue) {
+    let newSelectedValue = selector(contextValue);
+    if (newSelectedValue === BAILOUT) {
+      if (state.current === undefined) {
+        throw new Error("Initial selector call must not return BAILOUT");
+      } else {
+        newSelectedValue = state.current.selectedValue;
+      }
+    }
+    console.log("RENDER computed new  value", newSelectedValue);
+    state.current = {
+      contextValue,
+      selectedValue: newSelectedValue,
+    };
+  }
+  // useLayoutEffect(() => {
+  //   latestSelectedValue.current = selectedValue;
+  // });
 
   // Subscribe to context updates, and setSelectedValue() only when the selected value changes.
   useLayoutEffect(() => {
-    const sub = (newValue: T) => {
-      const newSelectedValue = selector(newValue);
+    const sub = (newContextValue: T) => {
+      let newSelectedValue = selector(newContextValue);
       if (newSelectedValue === BAILOUT) {
-        return;
+        newSelectedValue = state.current!.selectedValue;
       }
-      if (newSelectedValue !== latestSelectedValue.current) {
-        // Because newSelectedValue might be a function, we have to always use the reducer form of setState.
-        setSelectedValue(() => newSelectedValue);
+      if (newSelectedValue !== state.current?.selectedValue) {
+        console.log("SUB computed new value", newSelectedValue);
+        forceUpdate((x) => x + 1);
+      } else {
+        console.log("SUB same value", newSelectedValue);
       }
+      state.current = {
+        contextValue: newContextValue,
+        selectedValue: newSelectedValue,
+      };
     };
     handle.addSubscriber(sub);
     return () => {
@@ -242,7 +258,8 @@ export function useContextSelector<T, U>(
     };
   }, [handle, selector]);
 
-  return selectedValue;
+  console.log("returning", state.current!.selectedValue);
+  return state.current!.selectedValue;
 }
 
 useContextSelector.BAILOUT = BAILOUT;
