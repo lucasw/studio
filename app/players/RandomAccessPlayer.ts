@@ -10,6 +10,7 @@
 //   This source code is licensed under the Apache License, Version 2.0,
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
+import EventEmitter from "eventemitter3";
 import { isEqual, partition } from "lodash";
 import { TimeUtil, Time } from "rosbag";
 import { v4 as uuidv4 } from "uuid";
@@ -35,6 +36,7 @@ import {
   Topic,
   ParsedMessageDefinitionsByTopic,
   PlayerPresence,
+  PlayerEvents,
 } from "@foxglove-studio/app/players/types";
 import delay from "@foxglove-studio/app/shared/delay";
 import inScreenshotTests from "@foxglove-studio/app/stories/inScreenshotTests";
@@ -45,7 +47,6 @@ import { SEEK_TO_UNIX_MS_QUERY_KEY } from "@foxglove-studio/app/util/globalConst
 import { stringifyParams } from "@foxglove-studio/app/util/layout";
 import { isRangeCoveredByRanges } from "@foxglove-studio/app/util/ranges";
 import { getSanitizedTopics } from "@foxglove-studio/app/util/selectors";
-import sendNotification, { NotificationType } from "@foxglove-studio/app/util/sendNotification";
 import {
   toMillis,
   clampTime,
@@ -101,6 +102,7 @@ export type RandomAccessPlayerOptions = {
 
 // A `Player` that wraps around a tree of `DataProviders`.
 export default class RandomAccessPlayer implements Player {
+  private emitter = new EventEmitter<PlayerEvents>();
   _provider: DataProvider;
   _isPlaying: boolean = false;
   _wasPlayingBeforeTabSwitch = false;
@@ -157,6 +159,9 @@ export default class RandomAccessPlayer implements Player {
     document.addEventListener("visibilitychange", this._handleDocumentVisibilityChange, false);
   }
 
+  on = this.emitter.on.bind(this.emitter);
+  off = this.emitter.off.bind(this.emitter);
+
   // If the user switches tabs, we won't actually play because no requestAnimationFrames will be called.
   // Make sure this is reflected in application state and in metrics as a pause and resume.
   _handleDocumentVisibilityChange = () => {
@@ -171,13 +176,13 @@ export default class RandomAccessPlayer implements Player {
     }
   };
 
-  _setError(message: string, details: string | Error, errorType: NotificationType) {
-    sendNotification(message, details, errorType, "error");
+  _setError(message: string, details: string | Error, errorType: "app" | "user"): void {
     this._hasError = true;
     this._isPlaying = false;
     if (!this._initializing) {
       this._provider.close();
     }
+    this.emitter.emit("error", message, details, errorType, "error");
     this._emitState();
   }
 
@@ -457,7 +462,8 @@ export default class RandomAccessPlayer implements Player {
       const messageTypes = Object.keys(messages)
         .filter((type) => (messages as any)[type] != undefined)
         .join("\n");
-      sendNotification(
+      this.emitter.emit(
+        "error",
         "Bad set of message types in RandomAccessPlayer",
         `Message types: ${messageTypes}`,
         "app",
@@ -477,7 +483,8 @@ export default class RandomAccessPlayer implements Player {
     const filterMessages = (msgs: Message[], topics: string[]) =>
       filterMap(msgs, (message) => {
         if (!topics.includes(message.topic)) {
-          sendNotification(
+          this.emitter.emit(
+            "error",
             `Unexpected topic encountered: ${message.topic}; skipped message`,
             `Full message details: ${JSON.stringify(message)}`,
             "app",
@@ -487,7 +494,8 @@ export default class RandomAccessPlayer implements Player {
         }
         const topic: Topic | undefined = this._providerTopics.find((t) => t.name === message.topic);
         if (!topic) {
-          sendNotification(
+          this.emitter.emit(
+            "error",
             `Could not find topic for message ${message.topic}; skipped message`,
             `Full message details: ${JSON.stringify(message)}`,
             "app",
@@ -496,7 +504,8 @@ export default class RandomAccessPlayer implements Player {
           return undefined;
         }
         if (!topic.datatype) {
-          sendNotification(
+          this.emitter.emit(
+            "error",
             `Missing datatype for topic: ${message.topic}; skipped message`,
             `Full message details: ${JSON.stringify(message)}`,
             "app",

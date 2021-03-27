@@ -32,6 +32,9 @@ export default class FakePlayer implements Player {
     this.listener = listener;
   }
 
+  on(): void {}
+  off(): void {}
+
   emit({
     activeData,
     presence,

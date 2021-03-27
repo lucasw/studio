@@ -48,6 +48,7 @@ const { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } = R
 type ResumeFrame = () => void;
 export type MessagePipelineContext = {
   playerState: PlayerState;
+  error: string | undefined;
   frame: Frame;
   sortedTopics: Topic[];
   datatypes: RosDatatypes;
@@ -106,12 +107,13 @@ export function MessagePipelineProvider({
   globalVariables = {},
 }: ProviderProps): React.ReactElement {
   const currentPlayer = useRef<Player | undefined>(undefined);
-  const [rawPlayerState, setRawPlayerState] = useState<PlayerState>(defaultPlayerState);
+  const [error, setError] = useState<string | undefined>(maybePlayer.error);
+  const [rawPlayerState, setRawPlayerState] = useState<PlayerState | undefined>();
   const playerState = useMemo(() => {
     // Use the MaybePlayer's status if we do not yet have a player to report presence.
-    if (rawPlayerState.presence === PlayerPresence.NOT_PRESENT) {
+    if (!rawPlayerState) {
       return {
-        ...rawPlayerState,
+        ...defaultPlayerState(),
         presence: maybePlayer.loading
           ? PlayerPresence.CONSTRUCTING
           : maybePlayer.error
@@ -149,6 +151,21 @@ export function MessagePipelineProvider({
   const player = maybePlayer?.player;
   useEffect(() => player?.setSubscriptions(subscriptions), [player, subscriptions]);
   useEffect(() => player?.setPublishers(publishers), [player, publishers]);
+  useEffect(() => {
+    if (!player) {
+      return undefined;
+    }
+    const listener = (
+      message: string,
+      _details: string | Error,
+      _errorType: "app" | "user",
+      _severity: "error" | "warn",
+    ) => {
+      setError(message);
+    };
+    player.on("error", listener);
+    return () => player.off("error", listener);
+  }, [player]);
 
   // Delay the player listener promise until rendering has finished for the latest data.
   useLayoutEffect(() => {
@@ -331,6 +348,7 @@ export function MessagePipelineProvider({
     <ContextInternal.Provider
       value={useShallowMemo({
         playerState,
+        error,
         subscriptions,
         publishers,
         frame,

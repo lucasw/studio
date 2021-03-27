@@ -11,6 +11,7 @@
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
 
+import EventEmitter from "eventemitter3";
 import { Time, RosMsgDefinition } from "rosbag";
 
 import { BlockCache } from "@foxglove-studio/app/dataProviders/MemoryCacheDataProvider";
@@ -35,6 +36,15 @@ export type ParsedMessageDefinitionsByTopic = {
 // current time, which topics and datatypes are available, and so on.
 // For more details, see the types below.
 
+export interface PlayerEvents {
+  error: (
+    message: string,
+    details: string | Error,
+    errorType: "app" | "user",
+    severity: "error" | "warn",
+  ) => void;
+}
+
 export interface Player {
   // The main way to get information out the player is to set a listener. This listener will be
   // called whenever the PlayerState changes, so that we can render the new state to the UI. Users
@@ -42,6 +52,16 @@ export interface Player {
   // that we don't get overwhelmed with new state that we can't keep up with. The Player is
   // responsible for appropriately throttling based on when we resolve this promise.
   setListener(listener: (arg0: PlayerState) => Promise<void>): void;
+
+  on<T extends EventEmitter.EventNames<PlayerEvents>>(
+    event: T,
+    fn: EventEmitter.EventListener<PlayerEvents, T>,
+  ): void;
+  off<T extends EventEmitter.EventNames<PlayerEvents>>(
+    event: T,
+    fn: EventEmitter.EventListener<PlayerEvents, T>,
+  ): void;
+
   // Close the player; i.e. terminate any connections it might have open.
   close(): void;
   // Set a new set of subscriptions/advertisers. This might trigger fetching

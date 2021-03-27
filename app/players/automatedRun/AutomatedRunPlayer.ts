@@ -137,6 +137,9 @@ export default class AutomatedRunPlayer implements Player {
     });
   }
 
+  on(): void {}
+  off(): void {}
+
   async _getMessages(
     start: Time,
     end: Time,

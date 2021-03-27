@@ -10,6 +10,7 @@
 //   This source code is licensed under the Apache License, Version 2.0,
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
+import EventEmitter from "eventemitter3";
 import { isEqual, groupBy, partition } from "lodash";
 import microMemoize from "micro-memoize";
 import { TimeUtil, Time } from "rosbag";
@@ -42,6 +43,7 @@ import {
   SubscribePayload,
   Topic,
   BobjectMessage,
+  PlayerEvents,
 } from "@foxglove-studio/app/players/types";
 import signal from "@foxglove-studio/app/shared/signal";
 import { RosDatatypes } from "@foxglove-studio/app/types/RosDatatypes";
@@ -138,6 +140,19 @@ export default class UserNodePlayer implements Player {
       // We set this in Redux as the monaco editor needs to refer to it.
       setUserNodeRosLib(rosLib);
     };
+  }
+
+  on<T extends EventEmitter.EventNames<PlayerEvents>>(
+    event: T,
+    fn: EventEmitter.EventListener<PlayerEvents, T>,
+  ): void {
+    this._player.on(event, fn);
+  }
+  off<T extends EventEmitter.EventNames<PlayerEvents>>(
+    event: T,
+    fn: EventEmitter.EventListener<PlayerEvents, T>,
+  ): void {
+    this._player.off(event, fn);
   }
 
   _getTopics = microMemoize((topics: Topic[], nodeTopics: Topic[]) => [...topics, ...nodeTopics], {

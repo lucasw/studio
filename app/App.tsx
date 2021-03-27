@@ -88,6 +88,7 @@ function Root() {
   const playerPresence = useMessagePipeline(
     useCallback(({ playerState }) => playerState.presence, []),
   );
+  const playerError = useMessagePipeline(useCallback(({ error }) => error, []));
   const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [shortcutsModalOpen, setShortcutsModalOpen] = useState(false);
   const [messagePathSyntaxModalOpen, setMessagePathSyntaxModalOpen] = useState(false);
@@ -215,7 +216,7 @@ function Root() {
             <TinyConnectionPicker />
           </SToolbarItem>
           <SToolbarItem>
-            {currentSourceName ?? "Select a data source"} {presenceIcon}
+            {currentSourceName ?? "Select a data source"} {presenceIcon} {playerError}
           </SToolbarItem>
           <div style={{ flexGrow: 1 }}></div>
           <SToolbarItem style={{ marginRight: 5 }}>

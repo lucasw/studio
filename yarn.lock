@@ -1802,6 +1802,7 @@ __metadata:
     chromatic: 5.7.0
     classnames: 2.2.6
     enzyme: 3.11.0
+    eventemitter3: 4.0.7
     fetch-mock: 9.11.0
     fuzzysort: 1.1.4
     gl-matrix: 3.3.0

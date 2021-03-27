@@ -42,6 +42,7 @@ function noop() {}
 export default function MockMessagePipelineProvider(props: {
   children: React.ReactNode;
   presence?: PlayerPresence;
+  error?: string;
   topics?: Topic[];
   datatypes?: RosDatatypes;
   messages?: Message[];
@@ -145,6 +146,7 @@ export default function MockMessagePipelineProvider(props: {
       <ContextInternal.Provider
         value={{
           playerState: playerState as any,
+          error: props.error,
           frame: groupBy(props.messages ?? [], "topic"),
           sortedTopics: (props.topics ?? []).sort(naturalSort("name")),
           datatypes: props.datatypes ?? NO_DATATYPES,

@@ -53,6 +53,9 @@ export default class StoryPlayer implements Player {
   constructor(bags: string[]) {
     this._bags = bags;
   }
+  on(): void {}
+  off(): void {}
+
   setListener(listener: (arg0: PlayerState) => Promise<void>) {
     (async () => {
       const bagDescriptors = await Promise.all(

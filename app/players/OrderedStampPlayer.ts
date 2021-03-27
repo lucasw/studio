@@ -10,6 +10,7 @@
 //   This source code is licensed under the Apache License, Version 2.0,
 //   found at http://www.apache.org/licenses/LICENSE-2.0
 //   You may not use this file except in compliance with the License.
+import EventEmitter from "eventemitter3";
 import { partition, uniq } from "lodash";
 import microMemoize from "micro-memoize";
 import { Time, TimeUtil } from "rosbag";
@@ -27,6 +28,7 @@ import {
   PlayerState,
   PlayerWarnings,
   Topic,
+  PlayerEvents,
 } from "@foxglove-studio/app/players/types";
 import { BinaryStampedMessage } from "@foxglove-studio/app/types/BinaryMessages";
 import { RosDatatypes } from "@foxglove-studio/app/types/RosDatatypes";
@@ -70,6 +72,19 @@ export default class OrderedStampPlayer implements Player {
   constructor(player: UserNodePlayer, messageOrder: TimestampMethod) {
     this._player = player;
     this._messageOrder = messageOrder;
+  }
+
+  on<T extends EventEmitter.EventNames<PlayerEvents>>(
+    event: T,
+    fn: EventEmitter.EventListener<PlayerEvents, T>,
+  ): void {
+    this._player.on(event, fn);
+  }
+  off<T extends EventEmitter.EventNames<PlayerEvents>>(
+    event: T,
+    fn: EventEmitter.EventListener<PlayerEvents, T>,
+  ): void {
+    this._player.off(event, fn);
   }
 
   setListener(listener: (arg0: PlayerState) => Promise<void>) {

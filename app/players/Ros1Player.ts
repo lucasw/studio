@@ -57,6 +57,10 @@ export default class Ros1Player implements Player {
     this.#open();
   }
 
+  // TODO: error reporting
+  on(): void {}
+  off(): void {}
+
   #open = async (): Promise<void> => {
     const os = OsContextSingleton;
     if (this.#closed || os == undefined) {

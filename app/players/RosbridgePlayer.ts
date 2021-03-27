@@ -79,6 +79,10 @@ export default class RosbridgePlayer implements Player {
     this._open();
   }
 
+  // TODO: error reporting
+  on(): void {}
+  off(): void {}
+
   _open = (): void => {
     if (this._closed) {
       return;
