@@ -119,7 +119,16 @@ describe("MessagePipelineProvider/useMessagePipeline", () => {
     });
 
     rerender({ maybePlayer: { loading: true } });
-    rerender({ maybePlayer: { error: "failed to load player" } });
+    rerender({
+      maybePlayer: {
+        error: {
+          message: "failed to load player",
+          details: "none",
+          type: "user",
+          severity: "error",
+        },
+      },
+    });
     rerender({ maybePlayer: { player } });
     await act(() => player.emit());
     await act(() => player.emit({ presence: PlayerPresence.RECONNECTING }));
