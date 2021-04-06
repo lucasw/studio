@@ -110,6 +110,11 @@ export function makeConfig(_: unknown, argv: WebpackArgv, options?: Options): Co
           ],
         },
         {
+          // Load GLSL shaders as raw source
+          test: /\.(frag|vert|glsl)$/,
+          type: "asset/source",
+        },
+        {
           // "?raw" imports are used to load stringified typescript in Node Playground
           // https://webpack.js.org/guides/asset-modules/#replacing-inline-loader-syntax
           resourceQuery: /raw/,

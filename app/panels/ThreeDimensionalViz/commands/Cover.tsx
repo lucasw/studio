@@ -13,24 +13,14 @@
 import memoize from "lodash/memoize";
 import { Command } from "regl-worldview";
 
+import FragShader from "@foxglove-studio/app/panels/ThreeDimensionalViz/glsl/Cover.frag";
+import VertShader from "@foxglove-studio/app/panels/ThreeDimensionalViz/glsl/Cover.vert";
 import { ReglColor } from "@foxglove-studio/app/util/colorUtils";
 
 const makeReglCommand = memoize(
   ({ overwriteDepthBuffer }: { overwriteDepthBuffer?: boolean }) => (regl: any) => ({
-    vert: `
-      precision mediump float;
-      attribute vec2 position;
-      void main () {
-        gl_Position = vec4(position, 1, 1);
-      }
-    `,
-
-    frag: `
-      precision mediump float;
-      uniform vec4 color;
-      void main () {
-        gl_FragColor = color;
-    }`,
+    vert: VertShader,
+    frag: FragShader,
 
     attributes: {
       position: regl.prop("points"),

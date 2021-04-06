@@ -49,3 +49,13 @@ declare module "*.wasm" {
   const url: string;
   export default url;
 }
+
+declare module "*.frag" {
+  const content: string;
+  export default content;
+}
+
+declare module "*.vert" {
+  const content: string;
+  export default content;
+}

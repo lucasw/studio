@@ -15,6 +15,8 @@ import { Command, withPose, pointToVec3, defaultBlend, CommonCommandProps } from
 
 import { getGlobalHooks } from "@foxglove-studio/app/loadWebviz";
 import { TextureCache } from "@foxglove-studio/app/panels/ThreeDimensionalViz/commands/utils";
+import FragShader from "@foxglove-studio/app/panels/ThreeDimensionalViz/glsl/OccupancyGrid.frag";
+import VertShader from "@foxglove-studio/app/panels/ThreeDimensionalViz/glsl/OccupancyGrid.vert";
 import { OccupancyGridMessage } from "@foxglove-studio/app/types/Messages";
 
 const occupancyGrids = (regl: any) => {
@@ -28,59 +30,8 @@ const occupancyGrids = (regl: any) => {
   return withPose({
     primitive: "triangle strip",
 
-    vert: `
-    precision lowp float;
-
-    uniform mat4 projection, view;
-    uniform vec3 offset;
-    uniform vec4 orientation;
-    uniform float width, height, resolution, alpha;
-
-    attribute vec3 point;
-
-    #WITH_POSE
-
-    varying vec2 uv;
-    varying float vAlpha;
-
-    void main () {
-      // set the texture uv to the unscaled vertext point
-      uv = vec2(point.x, point.y);
-
-      // compute the plane vertex dimensions
-      float planeWidth = width * resolution;
-      float planeHeight = height * resolution;
-
-      // rotate the point by the ogrid orientation & scale the point by the plane vertex dimensions
-      vec3 position = rotate(point, orientation) * vec3(planeWidth, planeHeight, 1.);
-
-      // move the vertex by the marker offset
-      vec3 loc = applyPose(position + offset);
-      vAlpha = alpha;
-      gl_Position = projection * view * vec4(loc, 1);
-    }
-    `,
-    frag: `
-    precision lowp float;
-
-    varying vec2 uv;
-    varying float vAlpha;
-
-    uniform sampler2D palette;
-    uniform sampler2D data;
-
-    void main () {
-      // look up the point in our data texture corresponding to
-      // the current point being shaded
-      vec4 point = texture2D(data, uv);
-
-      // vec2(point.a, 0.5) is similar to textelFetch for webGL 1.0
-      // it looks up a point along our 1 dimentional palette
-      // http://www.lighthouse3d.com/tutorials/glsl-tutorial/texture-coordinates/
-      gl_FragColor = texture2D(palette, vec2(point.a, 0.5));
-      gl_FragColor.a *= vAlpha;
-    }
-    `,
+    vert: VertShader,
+    frag: FragShader,
     blend: defaultBlend,
 
     depth: { enable: true, mask: false },

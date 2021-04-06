@@ -22,6 +22,8 @@ import {
 } from "regl-worldview";
 
 import { getGlobalHooks } from "@foxglove-studio/app/loadWebviz";
+import FragShader from "@foxglove-studio/app/panels/ThreeDimensionalViz/glsl/LaserScan.frag";
+import VertShader from "@foxglove-studio/app/panels/ThreeDimensionalViz/glsl/LaserScan.vert";
 import { LaserScan } from "@foxglove-studio/app/types/Messages";
 
 export const DEFAULT_FLAT_COLOR = { r: 0.5, g: 0.5, b: 1, a: 1 };
@@ -29,19 +31,8 @@ export const DEFAULT_FLAT_COLOR = { r: 0.5, g: 0.5, b: 1, a: 1 };
 const laserScan = (regl: Regl) =>
   withPose({
     primitive: "points",
-    vert: (getGlobalHooks() as any).perPanelHooks().ThreeDimensionalViz.LaserScanVert,
-    frag: `
-  precision mediump float;
-  varying vec4 vColor;
-  uniform bool isCircle;
-  void main () {
-    if (isCircle && length(gl_PointCoord * 2.0 - 1.0) > 1.0) {
-      discard;
-    }
-
-    gl_FragColor = vColor;
-  }
-  `,
+    vert: VertShader,
+    frag: FragShader,
 
     uniforms: {
       pointSize: (context: never, props: any) => props.settings?.pointSize || 4,

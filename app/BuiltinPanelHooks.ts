@@ -21,7 +21,6 @@ import PentagonOutlineIcon from "@mdi/svg/svg/pentagon-outline.svg";
 import RadarIcon from "@mdi/svg/svg/radar.svg";
 import RobotIcon from "@mdi/svg/svg/robot.svg";
 
-import LaserScanVert from "@foxglove-studio/app/panels/ThreeDimensionalViz/LaserScanVert";
 import sceneBuilderHooks from "@foxglove-studio/app/panels/ThreeDimensionalViz/SceneBuilder/defaultHooks";
 import { defaultMapPalette } from "@foxglove-studio/app/panels/ThreeDimensionalViz/commands/utils";
 import {
@@ -141,7 +140,6 @@ export function perPanelHooks() {
       },
       // TODO(Audrey): remove icons config after topic group release
       icons: {},
-      LaserScanVert,
       sceneBuilderHooks,
       getMapPalette() {
         return defaultMapPalette;
