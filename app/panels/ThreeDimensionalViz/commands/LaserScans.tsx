@@ -21,7 +21,6 @@ import {
   nonInstancedGetChildrenForHitmap,
 } from "regl-worldview";
 
-import { getGlobalHooks } from "@foxglove-studio/app/loadWebviz";
 import FragShader from "@foxglove-studio/app/panels/ThreeDimensionalViz/glsl/LaserScan.frag";
 import VertShader from "@foxglove-studio/app/panels/ThreeDimensionalViz/glsl/LaserScan.vert";
 import { LaserScan } from "@foxglove-studio/app/types/Messages";
