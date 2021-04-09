@@ -66,6 +66,7 @@ export default class RosbridgePlayer implements Player {
   _bobjects: BobjectMessage[] = []; // Queue of bobjects that we'll send in next _emitState() call.
   _messageOrder: TimestampMethod = "receiveTime";
   _requestTopicsTimeout?: ReturnType<typeof setTimeout>; // setTimeout() handle for _requestTopics().
+  _pendingTopicPublishers?: AdvertisePayload[];
   _topicPublishers: {
     [topicName: string]: roslib.Topic;
   } = {};
@@ -100,6 +101,12 @@ export default class RosbridgePlayer implements Player {
       }
       this._rosClient = rosClient;
       this._requestTopics();
+
+      // If required, set publishers to what was requested before connection was established
+      if (this._pendingTopicPublishers) {
+        this.setPublishers(this._pendingTopicPublishers);
+        this._pendingTopicPublishers = undefined;
+      }
     });
 
     rosClient.on("error", (error) => {
@@ -370,6 +377,12 @@ export default class RosbridgePlayer implements Player {
       publisher.unadvertise();
     }
     this._topicPublishers = {};
+
+    // If _rosClient is not set, defer publisher configuration to the connection event
+    if (!this._rosClient) {
+      this._pendingTopicPublishers = publishers;
+      return; // Stop here, otherwise topics will get created with ros = undefined
+    }
 
     if (publishers.length > 0) {
       if (!this._rosClient) {
