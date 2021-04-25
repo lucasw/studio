@@ -91,7 +91,7 @@ export default {
   title: "components/TimeBasedChart/index",
   component: TimeBasedChart,
   parameters: {
-    chromatic: {
+    screenshot: {
       delay: 50,
     },
   },
@@ -155,7 +155,7 @@ export const CanZoomAndUpdate = () => {
 };
 
 CanZoomAndUpdate.parameters = {
-  chromatic: {
+  screenshot: {
     delay: 500,
   },
 };
@@ -190,7 +190,7 @@ export const CleansUpTooltipOnUnmount = () => {
 };
 
 CleansUpTooltipOnUnmount.parameters = {
-  chromatic: {
+  screenshot: {
     delay: 3000,
   },
 };

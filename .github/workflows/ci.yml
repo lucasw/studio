@@ -26,11 +26,11 @@ jobs:
               yarn run tsc --noEmit # typecheck files that are not included by webpack or package builds
               yarn run lint:ci
           - name: packages
-            command: yarn build:packages
+            command: yarn run build:packages
           - name: test
             command: yarn run test --maxWorkers=100%
           - name: storybook
-            command: yarn workspace @foxglove-studio/app run chromatic
+            command: yarn run storybook:ci
         exclude:
           - os: windows-2019
             config: { name: lint }
@@ -60,10 +60,6 @@ jobs:
           restore-keys: ${{ runner.os }}-yarn-
       - run: yarn install --immutable
       - run: ${{ matrix.config.command }}
-        env:
-          CHROMATIC_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          CHROMATIC_BRANCH: ${{ github.event.pull_request.head.ref || github.ref }}
-          CHROMATIC_PROJECT_TOKEN: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
 
   integration:
     runs-on: ${{ matrix.os }}

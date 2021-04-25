@@ -195,7 +195,7 @@ function PanelSetupWithData({
 
 storiesOf("panels/ThreeDimensionalViz/Interactions/Interaction", module)
   .addParameters({
-    chromatic: { viewport: { width: 1001, height: 1101 } },
+    screenshot: { viewport: { width: 1001, height: 1101 } },
   })
   .add("default", () => {
     return (
@@ -432,7 +432,7 @@ const selectObject = () => simulateDragClick([468, 340]);
 const deselectObject = () => simulateDragClick([515, 630]);
 
 storiesOf("panels/ThreeDimensionalViz/interactions/open-close behavior", module)
-  .addParameters({ chromatic: { delay: 2500 } })
+  .addParameters({ screenshot: { delay: 2500 } })
   .add("auto opens the object details after selectedObject is set", () => {
     return (
       <ScreenshotSizedContainer>

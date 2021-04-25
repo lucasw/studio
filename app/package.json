@@ -1,10 +1,6 @@
 {
   "name": "@foxglove-studio/app",
   "private": true,
-  "scripts": {
-    "chromatic": "chromatic --project-token $CHROMATIC_PROJECT_TOKEN --build-script-name storybook:build --exit-once-uploaded",
-    "storybook:build": "TS_NODE_COMPILER_OPTIONS='{\"module\":\"commonjs\"}' build-storybook"
-  },
   "dependencies": {
     "@fluentui/react": "8.13.0",
     "@fluentui/react-icons-mdl2": "1.0.5",
@@ -130,10 +126,14 @@
     "@types/ws": "7.4.2",
     "@wojtekmaj/enzyme-adapter-react-17": "0.6.1",
     "argparse": "2.0.1",
-    "chromatic": "5.7.1",
     "enzyme": "3.11.0",
     "fetch-mock": "9.11.0",
     "http-server": "0.12.3",
+    "reg-notify-github-plugin": "0.10.15",
+    "reg-publish-gcs-plugin": "0.10.15",
+    "reg-simple-keygen-plugin": "0.10.15",
+    "reg-suit": "0.10.15",
+    "storycap": "3.0.4",
     "three": "0.128.0",
     "urdf-loader": "0.10.2",
     "url-search-params": "1.1.0",

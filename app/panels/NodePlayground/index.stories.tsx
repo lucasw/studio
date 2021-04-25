@@ -119,7 +119,7 @@ const SIDEBAR_OPEN_CLICK_TIMEOUT = 500;
 
 storiesOf("panels/NodePlayground", module)
   .addParameters({
-    chromatic: {
+    screenshot: {
       delay: 2500,
     },
   })

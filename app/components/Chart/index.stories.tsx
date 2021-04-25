@@ -161,7 +161,7 @@ export default {
   title: "components/Chart/index",
   component: ChartComponent,
   parameters: {
-    chromatic: {
+    screenshot: {
       delay: 100,
     },
   },
@@ -180,7 +180,7 @@ export const CanUpdate = () => {
 };
 
 CanUpdate.parameters = {
-  chromatic: {
+  screenshot: {
     delay: 500,
   },
 };
@@ -198,7 +198,7 @@ export const AllowsClickingOnDatalabels = () => {
 };
 
 AllowsClickingOnDatalabels.parameters = {
-  chromatic: {
+  screenshot: {
     delay: 500,
   },
 };

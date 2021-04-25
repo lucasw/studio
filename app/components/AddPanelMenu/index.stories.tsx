@@ -66,7 +66,7 @@ class MockPanelCatalog implements PanelCatalog {
 
 storiesOf("components/AddPanelMenu", module)
   .addParameters({
-    chromatic: {
+    screenshot: {
       delay: 500,
     },
   })

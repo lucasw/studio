@@ -89,7 +89,7 @@ export default {
   title: "panels/StateTransitions/index",
   component: StateTransitions,
   parameters: {
-    chromatic: {
+    screenshot: {
       delay: 100,
     },
   },
@@ -199,7 +199,7 @@ export const WithAHoveredTooltip = () => {
 };
 
 WithAHoveredTooltip.parameters = {
-  chromatic: {
+  screenshot: {
     delay: 200,
   },
 };

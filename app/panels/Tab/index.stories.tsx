@@ -90,7 +90,7 @@ const manyTabs = new Array(25)
 const DEFAULT_TIMEOUT = 200;
 storiesOf("panels/Tab/index", module)
   .addParameters({
-    chromatic: {
+    screenshot: {
       delay: 1000,
     },
   })

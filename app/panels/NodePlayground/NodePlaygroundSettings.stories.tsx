@@ -16,7 +16,7 @@ import NodePlaygroundSettings from "./NodePlaygroundSettings";
 
 storiesOf("panels/NodePlayground/NodePlaygroundSettings", module)
   .addParameters({
-    chromatic: {
+    screenshot: {
       delay: 1000,
     },
   })

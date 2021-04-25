@@ -24,7 +24,7 @@ export default {
   title: "components/ExperimentalFeatures",
   component: ExperimentalFeatureSettings,
   parameters: {
-    chromatic: {
+    screenshot: {
       viewport: { width: 1000, height: 1300 },
     },
   },

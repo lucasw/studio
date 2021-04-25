@@ -49,7 +49,7 @@ const AddMoreButtons = () => (
 
 storiesOf("components/NotificationDisplay", module)
   .addParameters({
-    chromatic: {
+    screenshot: {
       delay: 1000,
     },
   })

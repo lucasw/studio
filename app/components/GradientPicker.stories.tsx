@@ -78,7 +78,7 @@ function Story({
 
 storiesOf("components/GradientPicker", module)
   .addParameters({
-    chromatic: {
+    screenshot: {
       viewport: { width: 585, height: 500 },
     },
   })

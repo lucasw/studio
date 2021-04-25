@@ -31,7 +31,7 @@ export const SinglePoint = () => {
 };
 
 SinglePoint.parameters = {
-  chromatic: {
+  screenshot: {
     delay: 1000,
   },
   panelSetup: {

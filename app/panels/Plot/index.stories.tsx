@@ -320,7 +320,7 @@ const exampleConfig: PlotConfig = {
 
 storiesOf("panels/Plot/index", module)
   .addParameters({
-    chromatic: {
+    screenshot: {
       delay: 50,
     },
   })
