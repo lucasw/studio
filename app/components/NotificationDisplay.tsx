@@ -15,7 +15,7 @@ import WarnIcon from "@mdi/svg/svg/alert.svg";
 import InfoIcon from "@mdi/svg/svg/bell.svg";
 import NotificationIcon from "@mdi/svg/svg/close-circle.svg";
 import moment from "moment";
-import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import tinyColor from "tinycolor2";
 import { v4 as uuidv4 } from "uuid";
@@ -23,6 +23,10 @@ import { v4 as uuidv4 } from "uuid";
 import ChildToggle from "@foxglove-studio/app/components/ChildToggle";
 import Icon from "@foxglove-studio/app/components/Icon";
 import Menu from "@foxglove-studio/app/components/Menu";
+import {
+  MessagePipelineContext,
+  useMessagePipeline,
+} from "@foxglove-studio/app/components/MessagePipeline";
 import Modal, { Title } from "@foxglove-studio/app/components/Modal";
 import { RenderToBodyComponent } from "@foxglove-studio/app/components/RenderToBodyComponent";
 import {
@@ -210,11 +214,59 @@ export function NotificationModal({
   );
 }
 
+function selectPlayerNotification(ctx: MessagePipelineContext) {
+  return ctx.playerState.error;
+}
+
 export default function NotificationDisplay(): React.ReactElement {
   const [notifications, setNotifications] = useState<NotificationMessage[]>([]);
   const [showMostRecent, setShowMostRecent] = useState(false);
   const [clickedNotification, setClickedNotification] = useState<NotificationMessage>();
   const hideTimeout = useRef<ReturnType<typeof setTimeout>>();
+
+  const playerNotification = useMessagePipeline(selectPlayerNotification);
+
+  useEffect(() => {
+    if (!playerNotification) {
+      // remove any previous player notification
+      setNotifications((existing) => {
+        const idx = existing.findIndex((item) => {
+          return item.id === "player-notification";
+        });
+        if (idx < 0) {
+          return existing;
+        }
+
+        existing.splice(idx, 1);
+        return existing.slice();
+      });
+
+      return;
+    }
+
+    // add any notifications we are not already displaying from the player
+    setNotifications((existing) => {
+      const has = existing.some((item) => {
+        return item.id === playerNotification.id;
+      });
+
+      if (has) {
+        return existing;
+      }
+
+      const newNotifications: NotificationMessage[] = [];
+      newNotifications.push({
+        id: "player-notification",
+        message: playerNotification.message,
+        read: false,
+        created: new Date(),
+        details: playerNotification.error,
+        severity: playerNotification.type === "warning" ? "warn" : "error",
+      });
+
+      return existing.concat(newNotifications);
+    });
+  }, [playerNotification]);
 
   useLayoutEffect(() => {
     setNotificationHandler(

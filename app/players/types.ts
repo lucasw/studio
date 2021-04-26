@@ -96,6 +96,13 @@ export enum PlayerPresence {
   ERROR = "ERROR",
 }
 
+export type Notification = {
+  type: "error" | "warning";
+  id: string;
+  message: string;
+  error?: Error;
+};
+
 export type PlayerState = {
   // Information about the player's presence or connection status, for the UI to show a loading indicator.
   presence: PlayerPresence;
@@ -112,6 +119,8 @@ export type PlayerState = {
   // A unique id for this player (typically a UUID generated on construction). This is used to clear
   // out any data when switching to a new player.
   playerId: string;
+
+  error?: Notification;
 
   // The actual data to render panels with. Can be empty during initialization, until all this data
   // is known. See `type PlayerStateActiveData` for more details.

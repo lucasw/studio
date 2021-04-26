@@ -16,6 +16,9 @@ import sendNotification from "@foxglove-studio/app/util/sendNotification";
 
 import Rpc from "./Rpc";
 
+// fixme - this is confusing indirection - now we can't see easily what our
+// rpc is setup to handle
+
 // This function should be called inside the parent thread; it sets up receiving a message from the worker thread and
 // calling sendNotification.
 export function setupReceiveReportErrorHandler(rpc: Rpc) {

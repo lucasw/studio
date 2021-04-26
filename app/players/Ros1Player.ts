@@ -10,6 +10,7 @@ import OsContextSingleton from "@foxglove-studio/app/OsContextSingleton";
 import {
   AdvertisePayload,
   Message,
+  Notification,
   ParameterValue,
   Player,
   PlayerCapabilities,
@@ -23,7 +24,6 @@ import {
 import { RosDatatypes } from "@foxglove-studio/app/types/RosDatatypes";
 import debouncePromise from "@foxglove-studio/app/util/debouncePromise";
 import { getTopicsByTopicName } from "@foxglove-studio/app/util/selectors";
-import sendNotification from "@foxglove-studio/app/util/sendNotification";
 import {
   addTimes,
   fromMillis,
@@ -65,8 +65,9 @@ export default class Ros1Player implements Player {
   private _requestTopicsTimeout?: ReturnType<typeof setTimeout>; // setTimeout() handle for _requestTopics().
   private _hasReceivedMessage = false;
   private _metricsCollector: PlayerMetricsCollectorInterface;
-  private _sentTopicsErrorNotification = false;
-  private _sentNodesErrorNotification = false;
+
+  // last error during processing, passed along to the player state
+  private _error?: Notification;
 
   constructor(url: string, metricsCollector: PlayerMetricsCollectorInterface) {
     log.info(`url: ${url}`);
@@ -112,6 +113,8 @@ export default class Ros1Player implements Player {
   };
 
   private _requestTopics = async (): Promise<void> => {
+    this._error = undefined;
+
     if (this._requestTopicsTimeout) {
       clearTimeout(this._requestTopicsTimeout);
     }
@@ -150,21 +153,25 @@ export default class Ros1Player implements Player {
         this._subscribedTopics = graph.subscribers;
         this._services = graph.services;
       } catch (error) {
-        if (!this._sentNodesErrorNotification) {
-          this._sentNodesErrorNotification = true;
-          sendNotification("Failed to fetch system state from ROS", error, "user", "warn");
-        }
+        this._error = {
+          type: "warning",
+          id: "fail-state-fetch",
+          message: "Unable to fetch system state",
+          error,
+        };
         this._publishedTopics = new Map();
         this._subscribedTopics = new Map();
         this._services = new Map();
       }
-
       this._emitState();
     } catch (error) {
-      if (!this._sentTopicsErrorNotification) {
-        this._sentTopicsErrorNotification = true;
-        sendNotification("Error connecting to ROS", error, "user", "error");
-      }
+      this._error = {
+        id: "fail-conn",
+        type: "error",
+        message: "ROS connection failed",
+        error,
+      };
+      this._emitState();
     } finally {
       // Regardless of what happens, request topics again in a little bit.
       this._requestTopicsTimeout = setTimeout(this._requestTopics, 3000);
@@ -199,6 +206,7 @@ export default class Ros1Player implements Player {
       progress: {},
       capabilities: CAPABILITIES,
       playerId: this._id,
+      error: this._error,
 
       activeData: {
         messages,
@@ -310,12 +318,12 @@ export default class Ros1Player implements Player {
     publishers = publishers.filter((p) => p.topic.length > 0);
     if (publishers.length > 0) {
       const topics = publishers.map((p) => p.topic).join(", ");
-      sendNotification(
-        "Publishing not supported",
-        `Cannot publish to "${topics}", ROS publishing is not supported yet`,
-        "user",
-        "error",
-      );
+      this._error = {
+        type: "error",
+        id: "ros1-publish",
+        message: "Publishing not supported",
+        error: new Error(`Cannot publish to "${topics}"`),
+      };
     }
   }
 
@@ -327,12 +335,14 @@ export default class Ros1Player implements Player {
   publish({ topic, msg }: PublishPayload): void {
     const publication = this._rosNode?.publications.get(topic);
     if (publication == undefined) {
-      sendNotification(
-        "Invalid publish call",
-        `Tried to publish on a topic that is not registered as a publisher: ${topic}`,
-        "app",
-        "error",
-      );
+      this._error = {
+        type: "error",
+        id: "ros1-publish",
+        message: "Invalid publish call",
+        error: new Error(
+          `Tried to publish on a topic that is not registered as a publisher: ${topic}`,
+        ),
+      };
       return;
     }
     // TODO: Publishing

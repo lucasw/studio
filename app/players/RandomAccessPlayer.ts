@@ -42,7 +42,6 @@ import delay from "@foxglove-studio/app/util/delay";
 import filterMap from "@foxglove-studio/app/util/filterMap";
 import { isRangeCoveredByRanges } from "@foxglove-studio/app/util/ranges";
 import { getSanitizedTopics } from "@foxglove-studio/app/util/selectors";
-import sendNotification, { NotificationType } from "@foxglove-studio/app/util/sendNotification";
 import {
   clampTime,
   fromMillis,
@@ -161,7 +160,8 @@ export default class RandomAccessPlayer implements Player {
   };
 
   _setError(message: string, details: string | Error, errorType: NotificationType) {
-    sendNotification(message, details, errorType, "error");
+    //fixme - set error and send in state
+    //sendNotification(message, details, errorType, "error");
     this._hasError = true;
     this._isPlaying = false;
     if (!this._initializing) {
@@ -421,6 +421,8 @@ export default class RandomAccessPlayer implements Player {
       const messageTypes = Object.keys(messages)
         .filter((type) => (messages as any)[type] != undefined)
         .join("\n");
+
+      //fixme - set error and send in state
       sendNotification(
         "Bad set of message types in RandomAccessPlayer",
         `Message types: ${messageTypes}`,
@@ -441,6 +443,7 @@ export default class RandomAccessPlayer implements Player {
     const filterMessages = (msgs: Message[], topics: string[]) =>
       filterMap(msgs, (message) => {
         if (!topics.includes(message.topic)) {
+          //fixme - set error and send in state
           sendNotification(
             `Unexpected topic encountered: ${message.topic}; skipped message`,
             `Full message details: ${JSON.stringify(message)}`,
@@ -451,6 +454,7 @@ export default class RandomAccessPlayer implements Player {
         }
         const topic: Topic | undefined = this._providerTopics.find((t) => t.name === message.topic);
         if (!topic) {
+          //fixme - set error and send in state
           sendNotification(
             `Could not find topic for message ${message.topic}; skipped message`,
             `Full message details: ${JSON.stringify(message)}`,
@@ -460,6 +464,7 @@ export default class RandomAccessPlayer implements Player {
           return undefined;
         }
         if (topic.datatype === "") {
+          //fixme - set error and send in state
           sendNotification(
             `Missing datatype for topic: ${message.topic}; skipped message`,
             `Full message details: ${JSON.stringify(message)}`,

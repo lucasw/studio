@@ -36,7 +36,6 @@ import { bagConnectionsToDatatypes } from "@foxglove-studio/app/util/bagConnecti
 import debouncePromise from "@foxglove-studio/app/util/debouncePromise";
 import { FREEZE_MESSAGES } from "@foxglove-studio/app/util/globalConstants";
 import { getTopicsByTopicName } from "@foxglove-studio/app/util/selectors";
-import sendNotification from "@foxglove-studio/app/util/sendNotification";
 import {
   addTimes,
   fromMillis,
@@ -132,6 +131,7 @@ export default class RosbridgePlayer implements Player {
 
       if (!this._sentConnectionClosedNotification) {
         this._sentConnectionClosedNotification = true;
+        //fixme - set error and send in state
         sendNotification(
           "Rosbridge connection failed",
           `Check that the rosbridge WebSocket server at ${this._url} is reachable.`,
@@ -192,6 +192,7 @@ export default class RosbridgePlayer implements Player {
       }
 
       if (topicsMissingDatatypes.length > 0) {
+        //fixme - set error and send in state
         sendNotification(
           "Could not resolve all message types",
           `This can happen e.g. when playing a bag from a different codebase. Message types could not be found for these topics:\n${topicsMissingDatatypes.join(
@@ -222,6 +223,7 @@ export default class RosbridgePlayer implements Player {
       } catch (error) {
         if (!this._sentNodesErrorNotification) {
           this._sentNodesErrorNotification = true;
+          //fixme - set error and send in state
           sendNotification("Failed to fetch node details from rosbridge", error, "user", "warn");
         }
         this._publishedTopics = new Map();
@@ -233,6 +235,7 @@ export default class RosbridgePlayer implements Player {
     } catch (error) {
       if (!this._sentTopicsErrorNotification) {
         this._sentTopicsErrorNotification = true;
+        //fixme - set error and send in state
         sendNotification("Failed to fetch topics from rosbridge", error, "user", "error");
       }
     } finally {
@@ -406,6 +409,8 @@ export default class RosbridgePlayer implements Player {
   }
 
   setParameter(key: string, _value: ParameterValue): void {
+    //fixme - set error and send in state?
+    // should this just throw?
     sendNotification(
       "Parameter editing unsupported",
       `Cannot set parameter "${key}" with rosbridge, parameter editing is not supported`,
@@ -417,6 +422,8 @@ export default class RosbridgePlayer implements Player {
   publish({ topic, msg }: PublishPayload): void {
     const subscription = this._topicSubscriptions.get(topic);
     if (!subscription) {
+      //fixme - set error and send in state
+      // should this just throw? make the caller handle it!
       sendNotification(
         "Invalid publish call",
         `Tried to publish on a topic that is not registered as a publisher: ${topic}`,
