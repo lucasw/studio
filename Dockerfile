@@ -31,4 +31,4 @@ ADD . /home/studio
 WORKDIR /home/studio
 RUN yarn install
 RUN yarn serve
-RUN yarn start
+CMD yarn start
