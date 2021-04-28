@@ -1,0 +1,27 @@
+
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND="noninteractive"
+# TODO(lucasw) pass this in as var
+ENV TZ="America/Los_Angeles"
+
+# replace shell with bash so we can source files
+RUN rm /bin/sh && ln -s /bin/bash /bin/sh
+
+RUN apt-get update
+RUN apt-get install -y curl git gnupg2 sudo wget
+RUN apt-get update
+RUN apt-get install -y libgtk-3-0 libnotify4 libnss3 libxtst6 xdg-utils libdrm2 libgbm1 libxcb-dri3-0
+RUN apt-get install -y libgtkextra-dev libgconf2-dev libnss3 libasound2 libxtst-dev libxss1
+
+RUN wget https://github.com/foxglove/studio/releases/download/v0.6.0/foxglove-studio-0.6.0-linux-amd64.deb
+RUN dpkg -i foxglove-studio-0.6.0-linux-amd64.deb
+CMD "/opt/Foxglove Studio/foxglove-studio" --no-sandbox
+
+# current output
+# docker run -it --network=host foxglove_studio_deb
+# [main/main.js] Foxglove Studio 0.6.0
+# [main/main.js] initializing Sentry in renderer
+# [main/main.js] Could not set app as handler for foxglove://
+# The futex facility returned an unexpected error code.
+# Failed to generate minidump.

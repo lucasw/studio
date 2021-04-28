@@ -9,7 +9,7 @@ ENV TZ="America/Los_Angeles"
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 RUN apt-get update
-RUN apt-get install -y sudo curl gnupg2
+RUN apt-get install -y curl git gnupg2 sudo
 
 # install node
 ARG NODE_VERSION=14.16.0
@@ -30,5 +30,14 @@ RUN yarn -v
 ADD . /home/studio
 WORKDIR /home/studio
 RUN yarn install
-RUN yarn serve
-CMD yarn start
+
+RUN apt-get install -y libglib2.0-0
+RUN apt-get install -y libgtk-3-0 libnotify4 libnss3 libxtst6 xdg-utils libdrm2 libgbm1 libxcb-dri3-0
+RUN apt-get install -y libgtkextra-dev libgconf2-dev libnss3 libasound2 libxtst-dev libxss1
+
+CMD yarn serve
+# CMD yarn start
+
+# docker build . -t foxglove_studio
+# docker run -it --network=host foxglove_studio
+# docker run -it --network=host foxglove_studio yarn start
